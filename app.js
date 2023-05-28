@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
   name: String,
   password: String,
   // image: String,
-  surveyCommits: [String],
+  // surveyCommits: [String],
 });
 
 const User = mongoose.model("User", userSchema);
@@ -107,6 +107,7 @@ app
       const user = await User.findOne({ email: inputEmail });
       return user;
     }
+    
     findUser().then((user) => {
       const dbPassword = user.password;
       bcrypt.compare(inputPassword, dbPassword).then((match) => {
@@ -117,17 +118,14 @@ app
           res.cookie("access-token", accessToken, {
             maxAge: 60 * 60 * 24 * 30 * 1000, //30 days in ms
           });
-          res.redirect("/profile");
+          res.redirect("/home");
         }
       });
+    })
+    .catch((err)=>{
+      res.json({error: "User not found!"})
     });
   });
-
-app.route("/profile").get(validateToken, (req, res) => {
-  console.log(req.authenticated);
-  console.log(req.id);
-  res.render("profile");
-});
 
 app.route("/home").get(validateToken, (req, res) => {
   res.render("home");
@@ -135,18 +133,31 @@ app.route("/home").get(validateToken, (req, res) => {
 
 //CRUD
 
+app.route("/profile").get(validateToken, (req, res) => {
+  const userID = req.id;
+  async function findSurvey() {
+    const survey = await Survey.find({userID: userID });
+    return survey;
+  }
+  findSurvey().then((survey) => {
+    console.log()
+    res.render("profile", { survey: survey });
+  });
+
+});
+
 app
   .route("/create")
   .get(validateToken, (req, res) => {
-    const user = { userID: "10" };
+    console.log(req.id);
     res.render("create", {
       newQuestion: question,
       newAnswer: answers_array,
-      user: user,
+      user: req.id,
     });
   })
-  .post((req, res) => {
-    const userID = req.body.submit;
+  .post(validateToken, (req, res) => {
+    const userID = req.id;
     answers = req.body.answer;
     question = req.body.question;
     answers_array = answers.split(", ");
@@ -156,6 +167,7 @@ app
       question: question,
       answers: answers_array,
     });
+
     newSurvey.save();
 
     res.redirect("/create");
@@ -207,9 +219,11 @@ app
 
 app.get("/delete/:surveyID", async (req, res) => {
   const surveyID = req.params.surveyID;
-  const survey = await Survey.findByIdAndDelete(surveyID);
-  res.redirect("/");
+  await Survey.findByIdAndDelete(surveyID);
+  res.redirect("/profile");
 });
+
+app.get("/update/:surveyID")
 
 app.listen(3000, () => {
   console.log("Listening to port 3000..");

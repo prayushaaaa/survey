@@ -1,16 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile</title>
-</head>
-<body>
-    <img>
+  </head>
+  <body>
+    <img />
     <h3>useremail</h3>
     <h1>Surveys created</h1>
-    <a href="/">Logout</a>
+    
+    <% for(var i=0; i<survey.length; i++){ %>
+      <h2><%=survey[i].question%></h2>
+      <ul>
+      <%  (survey[i].answers).forEach((answer)=>{ %>
+          <li><%=answer%></li>
+        <% }) %>
+      </ul>  
+      <a href="/delete/<%=survey[i].id%>">Delete</a>
+      <a href="/update/<%=survey[i].id%>">Update</a>
+      -------
+  <% } %>
 
-</body>
+    <br><br><a href="/login">Logout</a>
+  </body>
 </html>
