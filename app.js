@@ -27,7 +27,7 @@ const router = express.Router();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static("./public/images"));
+app.use(express.static("public"));
 app.use(cookieParser());
 
 app.set("view engine", "ejs");
@@ -72,7 +72,7 @@ app
   })
   .post(upload.single("profile_picture"), async (req, res) => {
     try {
-      const { email, username, password } = req.body;
+      const { email, name, password } = req.body;
       const user = await User.findOne({ email });
       if (user) {
         res.status(400).send({ msg: `User with ${email} already exists.` });
@@ -80,7 +80,7 @@ app
         bcrypt.hash(password, 10).then((hash) => {
           User.create({
             email: email,
-            name: username,
+            name: name,
             password: hash,
           });
           console.log("User registered.");
@@ -128,21 +128,62 @@ app
   });
 
 app.route("/home").get(validateToken, (req, res) => {
-  res.render("home");
+  async function findAllResults(){
+    const results = await Result.find({});
+    return results;
+  }
+  findAllResults().then((results)=>{
+    const surveyResults = [];
+    const promises = [];
+    results.forEach((result)=>{
+      async function findSurvey(){
+        const survey = await Survey.findById(result.surveyID);
+        return survey;
+      }
+      promises.push(new Promise ((resolve, reject)=>{
+      findSurvey().then((survey)=>{
+        const answersCount = {};
+        result.answers.forEach((answer)=>{
+          answersCount[answer] = (answersCount[answer] || 0) + 1/result.answers.length*100;
+        })
+        const newResult = {
+          question: survey.question,
+          answers: answersCount
+        };
+        surveyResults.push(newResult);
+        resolve();
+      })
+    }))
+    })
+    Promise.all(promises).then(()=>{
+      console.log(surveyResults);
+      res.render("home",{surveyResults: surveyResults})
+    })
+  })
 });
 
 //CRUD
 
 app.route("/profile").get(validateToken, (req, res) => {
   const userID = req.id;
+
   async function findSurvey() {
     const survey = await Survey.find({userID: userID });
     return survey;
   }
-  findSurvey().then((survey) => {
-    console.log()
-    res.render("profile", { survey: survey });
+  
+  async function findUser(){
+    const user = await User.findById(req.id);
+    return user;
+  }
+  findUser().then((user)=>{
+    findSurvey().then((survey) => {
+    console.log(user)
+    res.render("profile", { survey: survey, user:user });
   });
+  })
+  
+  
 
 });
 
@@ -219,11 +260,49 @@ app
 
 app.get("/delete/:surveyID", async (req, res) => {
   const surveyID = req.params.surveyID;
+
+  await Result.deleteOne({surveyID: surveyID});
+
+
   await Survey.findByIdAndDelete(surveyID);
+  
   res.redirect("/profile");
 });
 
-app.get("/update/:surveyID")
+app.route("/update/:surveyID")
+  .get(async (req,res)=>{
+    const surveyID = req.params.surveyID;
+    const survey = await Survey.findById(surveyID);
+
+    // console.log(survey);
+    res.render("update",{survey: survey})
+  })
+  .post(async (req,res)=>{
+    const surveyID = req.params.surveyID;
+    const oldOption = req.body.option;
+    const newOption = req.body.newOption;
+
+    const survey = await Survey.findById(surveyID);
+
+    if (!newOption && oldOption) {
+      survey.answers.splice(oldOption,1);
+      survey.save();
+    }
+    else if(!oldOption && newOption){
+      survey.answers.push(newOption);
+      survey.save();
+    }
+    else{
+      survey.answers.splice(oldOption,1);
+      survey.answers.push(newOption);
+
+      survey.save().then(()=>console.log("Success"));
+    }
+      await Result.deleteOne({surveyID: surveyID});
+      res.redirect("/profile");
+
+  })
+
 
 app.listen(3000, () => {
   console.log("Listening to port 3000..");

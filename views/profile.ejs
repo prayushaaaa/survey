@@ -7,9 +7,9 @@
     <title>Profile</title>
   </head>
   <body>
-    <img />
-    <h3>useremail</h3>
-    <h1>Surveys created</h1>
+    <img src = "images/<%=user.name%>.png" height="25%" width="25%">
+    <h3><%=user.name%></h3>
+    <h3>Surveys created: -</h3>
     
     <% for(var i=0; i<survey.length; i++){ %>
       <h2><%=survey[i].question%></h2>
