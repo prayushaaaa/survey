@@ -1,25 +1,75 @@
-p{
-    border: 1px solid rgba(114, 135, 244, 0.443);
-    background-color: rgba(114, 135, 244, 0.443);
+*, body, form, .card{
+    font-family: 'Montserrat', sans-serif; 
+    }
     
-}
-
-.block{
-    display: inline-block;
-    background-color: grey;
-    color: white;
-}
-
-.nav{
-    left: 40%;
-    position: relative;
-}
-a{
-    padding: 20px;
-    color: white;
-    text-decoration: none;
-}
-
-a:hover{
-    border: 2px solid black;
-}
+    navbar {
+       font-family: 'Merriweather', serif;
+    }
+    
+    .form-table{
+        padding:4%;
+    }
+    
+    #heading{
+        font-size:2rem;
+        display: inline-block;
+        width:100%;
+    }
+    
+    img{
+        margin: 15px auto;
+    }
+    
+    #profile{
+        width:100%;
+        text-align:center;
+    }
+    
+    .card{
+        position:relative;
+        width:50%;
+        margin: 15px auto;
+        text-align:center;
+    }
+    
+    .card-img-top{
+        width:50%;
+        border: 5px solid black;
+        border-radius:50%;
+    }
+    
+    #content{
+        text-align:center;
+    }
+    
+    .content-card{
+        margin-top:5%;
+    }
+    
+    .graph {
+        background-color: grey;
+        padding:0;
+        margin:0;
+    }
+    
+    table, td {
+      border-top: 1px solid;
+      border-bottom: 1px solid;
+    }
+    
+    table {
+        text-align:left;
+        border-collapse:collapse;
+    }
+    #survey{
+        position:relative;
+        text-align:center;
+    }
+    
+    .survey{
+        width:50%;
+        margin:15x auto;
+        position:relative;
+        font-family: 'Montserrat', sans-serif;
+    }
+    
