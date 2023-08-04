@@ -1,5 +1,3 @@
-Survey App - Readme
-Overview
 This survey app is built using NodeJS, Express, MongoDB, and EJS, providing a user-friendly platform to conduct surveys and gather valuable insights. With a focus on simplicity and functionality, the app offers various features to facilitate the survey creation and management process.
 
 Features
